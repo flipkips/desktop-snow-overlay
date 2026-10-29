@@ -73,7 +73,7 @@ bool Renderer::CreateSprites() {
             float r = std::sqrt(dx * dx + dy * dy);
             float aw = std::pow(Clampf(1.0f - r * 1.55f, 0, 1), 0.7f);
             aw = Clampf(aw * 1.6f, 0, 1);
-            float ring = 0.30f * std::exp(-std::pow((r - 0.62f) / 0.2f, 2.0f));
+            float ring = 0.42f * std::exp(-std::pow((r - 0.62f) / 0.2f, 2.0f));
             float ad = ring * (1 - aw);
             float a = aw + ad;
             float cr = aw * 1.0f + ad * 0.30f, cg = aw * 1.0f + ad * 0.38f, cb = aw * 1.0f + ad * 0.55f;
@@ -146,7 +146,7 @@ bool Renderer::CreateSprites() {
         if (FAILED(hr)) return false;
     }
 
-    dc_->CreateSolidColorBrush(D2D1::ColorF(0.30f, 0.40f, 0.58f, 0.55f), &outline_);
+    dc_->CreateSolidColorBrush(D2D1::ColorF(0.30f, 0.40f, 0.58f, 0.70f), &outline_);
     D2D1_GRADIENT_STOP stops[2] = {{0.0f, D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.98f)},
                                    {1.0f, D2D1::ColorF(0.84f, 0.89f, 0.97f, 0.98f)}};
     ComPtr<ID2D1GradientStopCollection> coll;

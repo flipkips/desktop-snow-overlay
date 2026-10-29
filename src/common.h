@@ -19,7 +19,7 @@
 using Microsoft::WRL::ComPtr;
 
 #define APP_NAME    L"LayerSnow"
-#define APP_VERSION L"1.0.0"
+#define APP_VERSION L"1.0.1"
 #define APP_AUTHOR  L"flipkips"
 #define APP_REPO    L"https://github.com/flipkips/desktop-snow-overlay"
 #define IDI_APP     101
@@ -31,6 +31,7 @@ using Microsoft::WRL::ComPtr;
 #define WM_APP_SHAKE         (WM_APP + 4)
 #define WM_APP_TRAYCMD       (WM_APP + 5)  // wParam: TrayCmd from the tray menu
 #define WM_APP_RELOADUI      (WM_APP + 6)  // UI language changed
+#define WM_APP_MODALLOOP     (WM_APP + 7)  // wParam: 1 when a window drag starts, 0 when it ends
 
 DWORD WindowsBuild();  // 22000+ is Windows 11
 

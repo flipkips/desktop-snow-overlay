@@ -102,9 +102,10 @@ static bool IsGameProcess(HWND fg) {
 }
 
 static bool DetectGameOrFullscreen(HWND overlay) {
+    // QUNS_BUSY is not used: Windows also reports it for ordinary borderless apps.
     QUERY_USER_NOTIFICATION_STATE st;
     if (SUCCEEDED(SHQueryUserNotificationState(&st)) &&
-        (st == QUNS_RUNNING_D3D_FULL_SCREEN || st == QUNS_PRESENTATION_MODE || st == QUNS_BUSY))
+        (st == QUNS_RUNNING_D3D_FULL_SCREEN || st == QUNS_PRESENTATION_MODE))
         return true;
 
     HWND fg = GetForegroundWindow();
@@ -117,15 +118,14 @@ static bool DetectGameOrFullscreen(HWND overlay) {
     if (IsDesktopClass(cls) || IsTaskbarClass(cls)) return false;
 
     // Window covers the whole monitor (fullscreen or borderless).
-    // A normal maximized window with a caption does not count: it fills the screen when the taskbar auto-hides
-    LONG style = GetWindowLongW(fg, GWL_STYLE);
-    bool normalMaximized = IsZoomed(fg) && (style & WS_CAPTION) == WS_CAPTION;
+    // Maximized windows do not count, including frameless ones like Discord or VS Code:
+    // they fill the screen whenever the taskbar auto-hides.
     RECT r;
     GetWindowRect(fg, &r);
     MONITORINFO mi = {sizeof(mi)};
     GetMonitorInfoW(MonitorFromWindow(fg, MONITOR_DEFAULTTONEAREST), &mi);
     const RECT& m = mi.rcMonitor;
-    if (!normalMaximized && r.left <= m.left + 1 && r.top <= m.top + 1 && r.right >= m.right - 1 &&
+    if (!IsZoomed(fg) && r.left <= m.left + 1 && r.top <= m.top + 1 && r.right >= m.right - 1 &&
         r.bottom >= m.bottom - 1)
         return true;
 

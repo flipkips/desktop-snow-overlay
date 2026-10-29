@@ -202,7 +202,7 @@ int RunUninstaller(bool quiet) {
 // ---------- Installer window ----------
 
 int RunInstaller() {
-    static bool autostart = true, desktop = false, runAfter = true;
+    static bool autostart = true, desktop = true, runAfter = true;
     bool done = false, reload = true;
     const bool update = GetFileAttributesW(InstalledExe().c_str()) != INVALID_FILE_ATTRIBUTES;
 

@@ -84,6 +84,7 @@ private:
 };
 
 static App* g_app;
+static constexpr UINT_PTR kModalTimer = 7;
 
 LRESULT CALLBACK App::MsgProc(HWND h, UINT m, WPARAM w, LPARAM l) {
     return g_app ? g_app->HandleMsg(h, m, w, l) : DefWindowProcW(h, m, w, l);
@@ -107,6 +108,14 @@ LRESULT App::HandleMsg(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     case WM_APP_SHAKE:        snow_.ShakeAll(); return 0;
     case WM_APP_TRAYCMD:      HandleCmd((int)wp); return 0;
     case WM_APP_RELOADUI:     ReloadUi(); return 0;
+    case WM_APP_MODALLOOP:
+        // Dragging a window runs a modal loop that starves our main loop; keep ticking from WM_TIMER meanwhile.
+        if (wp) SetTimer(hwnd, kModalTimer, 1000 / std::max(15, Cfg().fps), nullptr);
+        else KillTimer(hwnd, kModalTimer);
+        return 0;
+    case WM_TIMER:
+        if (wp == kModalTimer) Tick();
+        return 0;
     case WM_DISPLAYCHANGE:    reinit_ = true; return 0;
     case WM_QUERYENDSESSION:  SaveSettings(); return TRUE;
     case WM_CLOSE:            running_ = false; return 0;
@@ -218,6 +227,10 @@ int App::Run(bool welcome) {
     DwmSetWindowAttribute(overlay_, DWMWA_EXCLUDED_FROM_PEEK, &excl, sizeof(excl));
 
     taskbarCreated_ = RegisterWindowMessageW(L"TaskbarCreated");
+    // When started as administrator, UIPI drops messages from non-elevated processes:
+    // tray clicks come from Explorer, "open settings" and "close" from other copies of the app.
+    for (UINT m : {(UINT)WM_APP_TRAY, (UINT)WM_APP_SHOWSETTINGS, (UINT)WM_CLOSE, taskbarCreated_})
+        ChangeWindowMessageFilterEx(msgWnd_, m, MSGFLT_ALLOW, nullptr);
     TrayAdd(msgWnd_);
     if (welcome)
         TrayBalloon(Tr(S_WELCOME_TITLE), Tr(S_WELCOME_TEXT));

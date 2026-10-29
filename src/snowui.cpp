@@ -536,6 +536,11 @@ LRESULT SnowPanel::Handle(UINT msg, WPARAM wp, LPARAM lp) {
     case WM_TIMER:
         if (!IsIconic(hwnd_)) Tick();
         return 0;
+    case WM_ENTERSIZEMOVE:
+    case WM_EXITSIZEMOVE:
+        if (HWND app = FindWindowW(kMsgWndClass, nullptr))
+            PostMessageW(app, WM_APP_MODALLOOP, msg == WM_ENTERSIZEMOVE, 0);
+        return 0;
     case WM_ACTIVATE:
         if (popup_ && LOWORD(wp) == WA_INACTIVE) PostMessageW(hwnd_, WM_CLOSE, 0, 0);
         return 0;
